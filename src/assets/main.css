@@ -1,2 +1,40 @@
 @import "tailwindcss";
 
+
+@theme {
+  --color-sand: #E2D2C9;
+  --color-ink: #1F2128;
+  --color-forest: #283B1D;
+  --color-olive: #6D8C2A;
+  --color-bark: #3E3D34;
+
+  --font-display: "Baloo 2", system-ui, sans-serif;
+  --font-body: "Figtree", system-ui, sans-serif;
+  --font-hand: "Gaegu", cursive;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-sand);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  h2, h3 {
+    font-family: var(--font-body);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-forest);
+    outline-offset: 3px;
+  }
+}
