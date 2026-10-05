@@ -4,7 +4,7 @@ import GameMap from '@/components/GameMap.vue'
 import ScoreBox from '@/components/ScoreBox.vue'
 import RoundPanel from '@/components/RoundPanel.vue'
 
-// Fake data for now. Later this comes from Appwrite.
+// Fake data for now. Later ts ll come from appwrites data'
 const round = ref({
   number: 1,
   total: 3,
@@ -14,7 +14,7 @@ const round = ref({
   clues: ['Warm climate', 'Forest edge'],
 })
 
-const score = ref(12)
+const score = ref(0)
 const guess = ref(null)
 
 function savePin(latlng) {

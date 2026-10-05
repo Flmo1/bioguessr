@@ -3,7 +3,7 @@ import { onMounted } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-// Tells the parent where the player clicked
+// Tells the parent whewr the user clidked 
 const emit = defineEmits(['pin'])
 
 let map = null
