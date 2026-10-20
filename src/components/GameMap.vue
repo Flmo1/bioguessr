@@ -3,15 +3,23 @@ import { onMounted } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-// Tells the parent whewr the user clidked 
 const emit = defineEmits(['pin'])
 
 let map = null
 let marker = null
+let answerMarker = null
+let line = null
 
 const pinIcon = L.divIcon({
   className: '',
   html: '<div style="width:22px;height:22px;border-radius:50%;background:#6D8C2A;border:3px solid white;"></div>',
+  iconSize: [22, 22],
+  iconAnchor: [11, 11],
+})
+
+const answerIcon = L.divIcon({
+  className: '',
+  html: '<div style="width:22px;height:22px;border-radius:50%;background:#E8483B;border:3px solid white;"></div>',
   iconSize: [22, 22],
   iconAnchor: [11, 11],
 })
@@ -29,6 +37,9 @@ onMounted(() => {
   ).addTo(map)
 
   map.on('click', (event) => {
+    // Do not let the player move the pin after they guessed
+    if (answerMarker) return
+
     if (marker) {
       marker.setLatLng(event.latlng)
     } else {
@@ -39,6 +50,31 @@ onMounted(() => {
   })
 })
 
+// Show the real place and draw a line from the guess to it
+function showAnswer(lat, lng) {
+  answerMarker = L.marker([lat, lng], { icon: answerIcon }).addTo(map)
+
+  line = L.polyline([marker.getLatLng(), [lat, lng]], {
+    color: '#ffffff',
+    dashArray: '6, 8',
+  }).addTo(map)
+
+  map.fitBounds(line.getBounds(), { padding: [80, 80] })
+}
+
+// Clear everything before the next round
+function reset() {
+  if (marker) map.removeLayer(marker)
+  if (answerMarker) map.removeLayer(answerMarker)
+  if (line) map.removeLayer(line)
+
+  marker = null
+  answerMarker = null
+  line = null
+
+  map.setView([20, 0], 2)
+}
+
 function zoomIn() {
   map.zoomIn()
 }
@@ -46,6 +82,9 @@ function zoomIn() {
 function zoomOut() {
   map.zoomOut()
 }
+
+// Let DailyView call showAnswer() and reset()
+defineExpose({ showAnswer, reset })
 </script>
 
 <template>

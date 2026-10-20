@@ -1,6 +1,8 @@
 <script setup>
 defineProps({
-  round: Object,
+  subject: Object,
+  roundNumber: Number,
+  totalRounds: Number,
   hasPin: Boolean,
 })
 
@@ -10,17 +12,20 @@ const emit = defineEmits(['guess'])
 <template>
   <div class="absolute top-1/2 -translate-y-1/2 left-6 z-[1000] w-[300px] bg-sand rounded-3xl p-6">
 
-    <p class="text-sm text-bark">Round {{ round.number }} of {{ round.total }}</p>
+    <p class="text-sm text-bark">Round {{ roundNumber }} of {{ totalRounds }}</p>
 
-    <div class="flex items-start justify-between gap-3 mb-4">
-      <h1 class="font-display font-bold text-3xl">Guess the habitat</h1>
-      <span class="bg-white text-bark text-sm px-3 py-1 rounded-full">{{ round.difficulty }}</span>
-    </div>
+    <h1 class="font-display font-bold text-3xl mb-4">Guess the habitat</h1>
 
-    <img :src="round.photo" :alt="round.photoAlt" class="w-full h-40 object-cover rounded-2xl mb-3" />
+    <img
+      :src="subject.photoUrl"
+      :alt="'Photo of a ' + subject.name"
+      class="w-full h-40 object-cover rounded-2xl mb-2"
+    />
+
+    <p class="text-xs text-bark mb-3">{{ subject.photoCredit }}</p>
 
     <div class="flex gap-2 mb-5">
-      <span v-for="clue in round.clues" :key="clue" class="bg-white text-sm px-3 py-1 rounded-full">
+      <span v-for="clue in subject.clues" :key="clue" class="bg-white text-sm px-3 py-1 rounded-full">
         {{ clue }}
       </span>
     </div>
