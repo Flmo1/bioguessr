@@ -50,10 +50,15 @@ function makeGuess() {
     Number(subject.lng)
   )
 
-  lastPoints.value = getPoints(lastDistance.value)
+  lastPoints.value = getPoints(lastDistance.value, Number(subject.radius))
   score.value = score.value + lastPoints.value
 
-  mapRef.value.showAnswer(Number(subject.lat), Number(subject.lng))
+  mapRef.value.showAnswer(
+    Number(subject.lat),
+    Number(subject.lng),
+    Number(subject.radius)
+  )
+
   stage.value = 'reveal'
 }
 

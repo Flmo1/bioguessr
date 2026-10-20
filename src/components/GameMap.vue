@@ -7,19 +7,12 @@ const emit = defineEmits(['pin'])
 
 let map = null
 let marker = null
-let answerMarker = null
+let answerCircle = null
 let line = null
 
 const pinIcon = L.divIcon({
   className: '',
   html: '<div style="width:22px;height:22px;border-radius:50%;background:#6D8C2A;border:3px solid white;"></div>',
-  iconSize: [22, 22],
-  iconAnchor: [11, 11],
-})
-
-const answerIcon = L.divIcon({
-  className: '',
-  html: '<div style="width:22px;height:22px;border-radius:50%;background:#E8483B;border:3px solid white;"></div>',
   iconSize: [22, 22],
   iconAnchor: [11, 11],
 })
@@ -38,7 +31,7 @@ onMounted(() => {
 
   map.on('click', (event) => {
     // Do not let the player move the pin after they guessed
-    if (answerMarker) return
+    if (answerCircle) return
 
     if (marker) {
       marker.setLatLng(event.latlng)
@@ -50,26 +43,34 @@ onMounted(() => {
   })
 })
 
-// Show the real place and draw a line from the guess to it
-function showAnswer(lat, lng) {
-  answerMarker = L.marker([lat, lng], { icon: answerIcon }).addTo(map)
+// Show the area where the species lives, plus a line from the guess to it
+function showAnswer(lat, lng, radius) {
+  // If the radius is missing, show a small circle instead of crashing
+  const safeRadius = Number(radius) || 50
+
+  answerCircle = L.circle([lat, lng], {
+    radius: safeRadius * 1000,
+    color: '#E8483B',
+    fillColor: '#E8483B',
+    fillOpacity: 0.25,
+  }).addTo(map)
 
   line = L.polyline([marker.getLatLng(), [lat, lng]], {
     color: '#ffffff',
     dashArray: '6, 8',
   }).addTo(map)
 
-  map.fitBounds(line.getBounds(), { padding: [80, 80] })
+  map.fitBounds(answerCircle.getBounds().extend(line.getBounds()), { padding: [60, 60] })
 }
 
 // Clear everything before the next round
 function reset() {
   if (marker) map.removeLayer(marker)
-  if (answerMarker) map.removeLayer(answerMarker)
+  if (answerCircle) map.removeLayer(answerCircle)
   if (line) map.removeLayer(line)
 
   marker = null
-  answerMarker = null
+  answerCircle = null
   line = null
 
   map.setView([20, 0], 2)
