@@ -44,12 +44,23 @@ async function useSpecies(species) {
       return
     }
 
-    // Send the filled in data up to the admin page
+    // If the species page had no second photo, borrow one from a real sighting
+    let second = species.photoUrl2
+    if (!second) {
+      for (const photo of place.photos) {
+        if (photo !== species.photoUrl) {
+          second = photo
+          break
+        }
+      }
+    }
+
     emit('import', {
       name: species.commonName,
       scientificName: species.scientificName,
       type: 'animal',
       photoUrl: species.photoUrl,
+      photoUrl2: second,
       photoCredit: species.photoCredit,
       funFact: species.wikipedia.replace(/<[^>]*>/g, '').slice(0, 300),
       clues: ['Seen ' + place.sightings + ' times on iNaturalist'],
@@ -71,7 +82,7 @@ async function useSpecies(species) {
 
     <h2 class="font-display font-bold text-2xl mb-2">Import from iNaturalist</h2>
     <p class="mb-4">
-      Search a species, pick one, and the form below gets filled in with a real photo
+      Search a species, pick one, and the form below gets filled in with real photos
       and the area where people have actually seen it.
     </p>
 
@@ -91,7 +102,7 @@ async function useSpecies(species) {
 
     <p v-if="loading">Searching iNaturalist...</p>
 
-    <p v-else-if="importing">Getting the location from real sightings...</p>
+    <p v-else-if="importing">Getting photos and location from real sightings...</p>
 
     <p v-else-if="searched && results.length === 0">
       No species found with a photo. Try another name.

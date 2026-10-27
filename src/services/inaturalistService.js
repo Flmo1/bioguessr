@@ -17,11 +17,19 @@ export async function searchSpecies(name) {
   const list = []
   for (const taxon of data.results) {
     if (taxon.default_photo) {
+
+      // Some species already come with several photos
+      let secondPhoto = ''
+      if (taxon.taxon_photos && taxon.taxon_photos.length > 1) {
+        secondPhoto = taxon.taxon_photos[1].photo.medium_url
+      }
+
       list.push({
         id: taxon.id,
         commonName: taxon.preferred_common_name || taxon.name,
         scientificName: taxon.name,
         photoUrl: taxon.default_photo.medium_url,
+        photoUrl2: secondPhoto,
         photoCredit: taxon.default_photo.attribution || 'Photo from iNaturalist',
         wikipedia: taxon.wikipedia_summary || '',
       })
@@ -31,11 +39,12 @@ export async function searchSpecies(name) {
   return list
 }
 
-// Get real sightings of a species and work out where it lives.
+// Get real sightings of a species.
+// This gives us the location AND some extra photos.
 export async function getLocation(taxonId) {
   const url = 'https://api.inaturalist.org/v1/observations' +
     '?taxon_id=' + taxonId +
-    '&geo=true&quality_grade=research&per_page=100'
+    '&geo=true&photos=true&quality_grade=research&per_page=100'
 
   const response = await fetch(url)
   if (!response.ok) {
@@ -44,14 +53,22 @@ export async function getLocation(taxonId) {
 
   const data = await response.json()
 
-  // Collect the coordinates of every sighting
   const points = []
+  const photos = []
+
   for (const observation of data.results) {
     if (observation.geojson) {
       points.push({
         lng: observation.geojson.coordinates[0],
         lat: observation.geojson.coordinates[1],
       })
+    }
+
+    // Collect a few photos we can use as a backup
+    if (observation.photos && observation.photos.length > 0 && photos.length < 5) {
+      // The url we get is a tiny square, so swap it for a bigger one
+      const bigger = observation.photos[0].url.replace('square', 'medium')
+      photos.push(bigger)
     }
   }
 
@@ -88,5 +105,6 @@ export async function getLocation(taxonId) {
     lng: Number(centerLng.toFixed(4)),
     radius: radius,
     sightings: points.length,
+    photos: photos,
   }
 }

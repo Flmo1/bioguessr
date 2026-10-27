@@ -42,6 +42,23 @@ export async function getDailySubjects() {
   return chosen
 }
 
+// Get 5 random species. Different every time you play.
+export async function getRandomSubjects() {
+  const all = await getSubjects()
+
+  // Make a copy so we do not change the original list
+  const pool = all.slice()
+  const chosen = []
+
+  while (chosen.length < 5 && pool.length > 0) {
+    const index = Math.floor(Math.random() * pool.length)
+    chosen.push(pool[index])
+    pool.splice(index, 1)
+  }
+
+  return chosen
+}
+
 // Get one species
 export async function getSubject(id) {
   return await tablesDB.getRow({

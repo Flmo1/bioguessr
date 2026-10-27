@@ -5,6 +5,7 @@ import HomeView from '@/views/HomeView.vue'
 import DailyView from '@/views/DailyView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
+import QuickView from '@/views/QuickView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,6 +15,7 @@ const router = createRouter({
     { path: '/login', name: 'login', component: LoginView },
     { path: '/admin', name: 'admin', component: AdminView, meta: { requiresEditor: true } },
     { path: '/register', name: 'register', component: RegisterView },
+    { path: '/quick', name: 'quick', component: QuickView },
   ],
 })
 

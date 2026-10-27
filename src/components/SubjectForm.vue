@@ -12,13 +12,15 @@ const name = ref(props.subject ? props.subject.name : '')
 const scientificName = ref(props.subject ? props.subject.scientificName : '')
 const type = ref(props.subject ? props.subject.type : 'animal')
 const photoUrl = ref(props.subject ? props.subject.photoUrl : '')
+const photoUrl2 = ref(props.subject ? props.subject.photoUrl2 : '')
 const photoCredit = ref(props.subject ? props.subject.photoCredit : '')
 const funFact = ref(props.subject ? props.subject.funFact : '')
 const lat = ref(props.subject ? props.subject.lat : '')
 const lng = ref(props.subject ? props.subject.lng : '')
 const radius = ref(props.subject ? props.subject.radius : 300)
 
-
+// In Appwrite clues is a list, but it is easier to type them as one line
+// separated by commas, so we join them here and split them again when saving.
 const cluesText = ref(
   props.subject && props.subject.clues ? props.subject.clues.join(', ') : ''
 )
@@ -47,6 +49,7 @@ function save() {
     scientificName: scientificName.value,
     type: type.value,
     photoUrl: photoUrl.value,
+    photoUrl2: photoUrl2.value,
     photoCredit: photoCredit.value,
     funFact: funFact.value,
     clues: clues,
@@ -80,6 +83,9 @@ function save() {
 
     <label class="block font-bold mb-1">Photo URL</label>
     <input v-model="photoUrl" class="w-full border border-sand rounded-lg p-2 mb-4" />
+
+    <label class="block font-bold mb-1">Second photo URL (optional)</label>
+    <input v-model="photoUrl2" class="w-full border border-sand rounded-lg p-2 mb-4" />
 
     <label class="block font-bold mb-1">Photo credit</label>
     <input v-model="photoCredit" class="w-full border border-sand rounded-lg p-2 mb-4" />

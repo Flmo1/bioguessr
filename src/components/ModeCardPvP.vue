@@ -16,10 +16,10 @@
       Compete against another player in a live match. Whoever pins the closest location wins the round.
     </p>
 
-    <RouterLink to="/daily" class="flex items-center justify-between text-olive font-bold">
-      Play now
-      <span class="w-9 h-9 rounded-full bg-sand flex items-center justify-center">→</span>
-    </RouterLink>
+    <div class="flex items-center justify-between">
+      <span class="font-bold text-bark">Coming soon</span>
+      <span class="w-9 h-9 rounded-full bg-sand flex items-center justify-center opacity-40">→</span>
+    </div>
 
   </div>
 </template>

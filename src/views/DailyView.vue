@@ -98,7 +98,7 @@ function playAgain() {
 
     <template v-else>
       <GameMap ref="mapRef" @pin="savePin" />
-      <ScoreBox :score="score" />
+      <ScoreBox :score="score" :roundNumber="currentRound + 1" :totalRounds="subjects.length" />
 
       <RoundPanel
         v-if="stage === 'guessing'"
