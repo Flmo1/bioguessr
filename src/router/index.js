@@ -1,3 +1,5 @@
+import AdminView from '@/views/AdminView.vue'
+import { useAuth } from '@/composables/useAuth'
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import DailyView from '@/views/DailyView.vue'
@@ -9,7 +11,16 @@ const router = createRouter({
     { path: '/', name: 'home', component: HomeView },
     { path: '/daily', name: 'daily', component: DailyView },
     { path: '/login', name: 'login', component: LoginView },
+    { path: '/admin', name: 'admin', component: AdminView, meta: { requiresEditor: true } },
   ],
+})
+
+router.beforeEach((to) => {
+  const auth = useAuth()
+
+  if (to.meta.requiresEditor && !auth.isEditor.value) {
+    return { name: 'login' }
+  }
 })
 
 export default router

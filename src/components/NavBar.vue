@@ -39,6 +39,7 @@ async function handleLogout() {
 
         <!-- Logged in -->
         <div v-else class="ml-auto flex items-center gap-6">
+          <RouterLink v-if="auth.isEditor.value" to="/admin" class="text-lg uppercase">Admin</RouterLink>
           <span class="text-lg">{{ auth.user.value.name }}</span>
           <button @click="handleLogout" class="text-lg uppercase">Log out</button>
         </div>
