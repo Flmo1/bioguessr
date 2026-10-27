@@ -24,10 +24,16 @@ export function useAuth() {
     user.value = await authService.getUser()
   }
 
+  // Make the account, then log straight in with it
+  async function register(name, email, password) {
+    await authService.register(name, email, password)
+    await login(email, password)
+  }
+
   async function logout() {
     await authService.logout()
     user.value = null
   }
 
-  return { user, checked, isEditor, loadUser, login, logout }
+  return { user, checked, isEditor, loadUser, login, register, logout }
 }

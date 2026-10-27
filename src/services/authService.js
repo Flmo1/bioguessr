@@ -1,3 +1,4 @@
+import { ID } from 'appwrite'
 import { account } from './appwrite'
 
 // Who is logged in right now? Returns null if nobody is.
@@ -15,4 +16,14 @@ export function login(email, password) {
 
 export function logout() {
   return account.deleteSession({ sessionId: 'current' })
+}
+
+// Make a new account
+export function register(name, email, password) {
+  return account.create({
+    userId: ID.unique(),
+    email: email,
+    password: password,
+    name: name,
+  })
 }
