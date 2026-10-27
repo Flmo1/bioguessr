@@ -96,7 +96,12 @@ async function playAgain() {
 
     <template v-else>
       <GameMap ref="mapRef" @pin="savePin" />
-      <ScoreBox :score="score" />
+
+      <ScoreBox
+        :score="score"
+        :roundNumber="currentRound + 1"
+        :totalRounds="subjects.length"
+      />
 
       <RoundPanel
         v-if="stage === 'guessing'"
@@ -120,6 +125,7 @@ async function playAgain() {
         v-else
         :totalScore="score"
         :totalRounds="subjects.length"
+        :isDaily="false"
         @playAgain="playAgain"
       />
     </template>

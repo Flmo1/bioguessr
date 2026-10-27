@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getDailySubjects } from '@/services/subjectService'
-import { getSubjects } from '@/services/subjectService'
 import { getDistance, getPoints } from '@/utils/distance'
 import GameMap from '@/components/GameMap.vue'
 import ScoreBox from '@/components/ScoreBox.vue'
@@ -9,15 +8,11 @@ import RoundPanel from '@/components/RoundPanel.vue'
 import RevealPanel from '@/components/RevealPanel.vue'
 import ResultsPanel from '@/components/ResultsPanel.vue'
 
-
 const subjects = ref([])
 const loading = ref(true)
 const error = ref('')
 
-// Which round we are on (0 = the first one)
 const currentRound = ref(0)
-
-// 'guessing' -> 'reveal' -> next round, or 'results' at the end
 const stage = ref('guessing')
 
 const guess = ref(null)
@@ -25,7 +20,6 @@ const score = ref(0)
 const lastDistance = ref(0)
 const lastPoints = ref(0)
 
-// Lets us call showAnswer() and reset() inside GameMap
 const mapRef = ref(null)
 
 onMounted(async () => {
@@ -33,7 +27,7 @@ onMounted(async () => {
     subjects.value = await getDailySubjects()
   } catch (err) {
     console.log(err)
-    error.value = 'Could not load today\u2019s expedition. Please try again.'
+    error.value = 'Could not load today’s expedition. Please try again.'
   }
   loading.value = false
 })
@@ -44,6 +38,7 @@ function savePin(latlng) {
 
 function makeGuess() {
   const subject = subjects.value[currentRound.value]
+  const radius = Number(subject.radius) || 0
 
   lastDistance.value = getDistance(
     guess.value.lat,
@@ -52,15 +47,10 @@ function makeGuess() {
     Number(subject.lng)
   )
 
-  lastPoints.value = getPoints(lastDistance.value, Number(subject.radius))
+  lastPoints.value = getPoints(lastDistance.value, radius)
   score.value = score.value + lastPoints.value
 
-  mapRef.value.showAnswer(
-    Number(subject.lat),
-    Number(subject.lng),
-    Number(subject.radius)
-  )
-
+  mapRef.value.showAnswer(Number(subject.lat), Number(subject.lng), radius)
   stage.value = 'reveal'
 }
 
@@ -98,7 +88,12 @@ function playAgain() {
 
     <template v-else>
       <GameMap ref="mapRef" @pin="savePin" />
-      <ScoreBox :score="score" :roundNumber="currentRound + 1" :totalRounds="subjects.length" />
+
+      <ScoreBox
+        :score="score"
+        :roundNumber="currentRound + 1"
+        :totalRounds="subjects.length"
+      />
 
       <RoundPanel
         v-if="stage === 'guessing'"
@@ -122,6 +117,7 @@ function playAgain() {
         v-else
         :totalScore="score"
         :totalRounds="subjects.length"
+        :isDaily="true"
         @playAgain="playAgain"
       />
     </template>

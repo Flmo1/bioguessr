@@ -14,6 +14,5 @@ app.use(createPinia())
 app.use(router)
 
 const auth = useAuth()
-auth.loadUser().then(() => {
-  app.mount('#app')
-})
+app.mount('#app')
+auth.loadUser()

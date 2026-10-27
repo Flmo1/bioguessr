@@ -4,14 +4,29 @@ import { tablesDB } from './appwrite'
 const databaseId = import.meta.env.VITE_APPWRITE_DATABASE_ID
 const tableId = import.meta.env.VITE_APPWRITE_SUBJECTS_ID
 
+// We keep the species here after the first time we load them,
+// so moving between pages does not ask Appwrite again.
+let cachedSubjects = null
+
+// Called after any change, so the next load gets fresh data
+function clearCache() {
+  cachedSubjects = null
+}
+
 // Get all species
 export async function getSubjects() {
+  if (cachedSubjects) {
+    return cachedSubjects
+  }
+
   const result = await tablesDB.listRows({
     databaseId: databaseId,
     tableId: tableId,
     queries: [Query.limit(100)],
   })
-  return result.rows
+
+  cachedSubjects = result.rows
+  return cachedSubjects
 }
 
 // Get the 5 species for today.
@@ -46,7 +61,7 @@ export async function getDailySubjects() {
 export async function getRandomSubjects() {
   const all = await getSubjects()
 
-  // Make a copy so we do not change the original list
+  // Make a copy so we do not change the cached list
   const pool = all.slice()
   const chosen = []
 
@@ -70,29 +85,35 @@ export async function getSubject(id) {
 
 // Create a new species
 export async function createSubject(data) {
-  return await tablesDB.createRow({
+  const row = await tablesDB.createRow({
     databaseId: databaseId,
     tableId: tableId,
     rowId: ID.unique(),
     data: data,
   })
+  clearCache()
+  return row
 }
 
 // Update a species
 export async function updateSubject(id, data) {
-  return await tablesDB.updateRow({
+  const row = await tablesDB.updateRow({
     databaseId: databaseId,
     tableId: tableId,
     rowId: id,
     data: data,
   })
+  clearCache()
+  return row
 }
 
 // Delete a species
 export async function deleteSubject(id) {
-  return await tablesDB.deleteRow({
+  const row = await tablesDB.deleteRow({
     databaseId: databaseId,
     tableId: tableId,
     rowId: id,
   })
+  clearCache()
+  return row
 }
