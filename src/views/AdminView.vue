@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { getSubjects, createSubject, updateSubject, deleteSubject } from '@/services/subjectService'
 import SubjectTable from '@/components/SubjectTable.vue'
 import SubjectForm from '@/components/SubjectForm.vue'
+import ImportBox from '@/components/ImportBox.vue'
 
 const subjects = ref([])
 const loading = ref(true)
@@ -10,7 +11,12 @@ const error = ref('')
 const message = ref('')
 
 const showForm = ref(false)
-const editing = ref(null)
+const showImport = ref(false)
+
+// The id of the species we are editing. null means we are making a new one.
+const editingId = ref(null)
+// The values the form starts with. null means empty fields.
+const formData = ref(null)
 
 onMounted(() => {
   loadSubjects()
@@ -29,27 +35,46 @@ async function loadSubjects() {
 }
 
 function startAdd() {
-  editing.value = null
+  editingId.value = null
+  formData.value = null
+  showImport.value = false
   showForm.value = true
 }
 
+function startImport() {
+  showForm.value = false
+  showImport.value = true
+}
+
 function startEdit(subject) {
-  editing.value = subject
+  editingId.value = subject.$id
+  formData.value = subject
+  showImport.value = false
   showForm.value = true
+}
+
+// Called when the user picks a species in the import box
+function handleImport(data) {
+  editingId.value = null
+  formData.value = data
+  showImport.value = false
+  showForm.value = true
+  message.value = 'Imported from iNaturalist. Check the details and save.'
 }
 
 async function handleSave(data) {
   error.value = ''
   try {
-    if (editing.value) {
-      await updateSubject(editing.value.$id, data)
+    if (editingId.value) {
+      await updateSubject(editingId.value, data)
       message.value = 'Species updated.'
     } else {
       await createSubject(data)
       message.value = 'Species added.'
     }
     showForm.value = false
-    editing.value = null
+    editingId.value = null
+    formData.value = null
     loadSubjects()
   } catch (err) {
     console.log(err)
@@ -75,14 +100,21 @@ async function handleDelete(id) {
 
     <h1 class="font-display font-bold text-4xl mb-6">Admin</h1>
 
-    <button v-if="!showForm" @click="startAdd" class="bg-olive text-white font-bold px-6 py-3 rounded-full mb-8">
-      Add a species
-    </button>
+    <div class="flex gap-3 mb-8">
+      <button @click="startImport" class="bg-forest text-white font-bold px-6 py-3 rounded-full">
+        Import from iNaturalist
+      </button>
+      <button @click="startAdd" class="bg-olive text-white font-bold px-6 py-3 rounded-full">
+        Add by hand
+      </button>
+    </div>
+
+    <ImportBox v-if="showImport" @import="handleImport" />
 
     <SubjectForm
       v-if="showForm"
-      :key="editing ? editing.$id : 'new'"
-      :subject="editing"
+      :key="editingId || 'new'"
+      :subject="formData"
       @save="handleSave"
       @cancel="showForm = false"
     />
@@ -92,7 +124,7 @@ async function handleDelete(id) {
 
     <p v-if="loading">Loading species...</p>
 
-    <p v-else-if="subjects.length === 0">No species yet. Add your first one!</p>
+    <p v-else-if="subjects.length === 0">No species yet. Import your first one!</p>
 
     <SubjectTable
       v-else

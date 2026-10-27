@@ -18,6 +18,11 @@ const lat = ref(props.subject ? props.subject.lat : '')
 const lng = ref(props.subject ? props.subject.lng : '')
 const radius = ref(props.subject ? props.subject.radius : 300)
 
+
+const cluesText = ref(
+  props.subject && props.subject.clues ? props.subject.clues.join(', ') : ''
+)
+
 const error = ref('')
 
 function save() {
@@ -28,6 +33,15 @@ function save() {
     return
   }
 
+  // Turn "Warm climate, Forest edge" into ['Warm climate', 'Forest edge']
+  const clues = []
+  for (const piece of cluesText.value.split(',')) {
+    const clue = piece.trim()
+    if (clue !== '') {
+      clues.push(clue)
+    }
+  }
+
   emit('save', {
     name: name.value,
     scientificName: scientificName.value,
@@ -35,6 +49,7 @@ function save() {
     photoUrl: photoUrl.value,
     photoCredit: photoCredit.value,
     funFact: funFact.value,
+    clues: clues,
     lat: Number(lat.value),
     lng: Number(lng.value),
     radius: Number(radius.value),
@@ -71,6 +86,14 @@ function save() {
 
     <label class="block font-bold mb-1">Fun fact</label>
     <textarea v-model="funFact" class="w-full border border-sand rounded-lg p-2 mb-4"></textarea>
+
+    <label class="block font-bold mb-1">Clues</label>
+    <input
+      v-model="cluesText"
+      placeholder="Warm climate, Forest edge"
+      class="w-full border border-sand rounded-lg p-2 mb-1"
+    />
+    <p class="text-sm mb-4">Separate each clue with a comma.</p>
 
     <label class="block font-bold mb-1">Latitude</label>
     <input v-model="lat" type="number" class="w-full border border-sand rounded-lg p-2 mb-4" />
