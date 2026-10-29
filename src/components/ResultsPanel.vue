@@ -17,7 +17,6 @@ const auth = useAuth()
 const scores = ref([])
 const loading = ref(true)
 const error = ref('')
-const saved = ref(false)
 
 // The best possible score: 5000 points per round
 const maxScore = computed(() => props.totalRounds * 5000)
@@ -45,7 +44,6 @@ onMounted(async () => {
   try {
     if (auth.user.value) {
       await saveGame(auth.user.value, props.totalScore)
-      saved.value = true
     }
     scores.value = await getTodayScores()
   } catch (err) {
@@ -58,14 +56,18 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="absolute top-6 bottom-6 left-6 z-[1000] w-[400px] bg-sand rounded-3xl p-7 flex flex-col overflow-y-auto">
+  <div
+    class="absolute z-[1000] bg-sand flex flex-col overflow-y-auto
+           inset-0 rounded-none p-4
+           md:inset-auto md:top-6 md:bottom-6 md:left-6 md:w-[400px] md:rounded-3xl md:p-7"
+  >
 
-    <h2 class="font-display font-bold text-4xl mb-2">Expedition complete!</h2>
+    <h2 class="font-display font-bold text-3xl md:text-4xl mb-2">Expedition complete!</h2>
     <p class="mb-5">You finished all {{ totalRounds }} rounds.</p>
 
     <div class="bg-white rounded-2xl p-5 mb-6 text-center">
       <p class="text-sm text-bark">Final score</p>
-      <p class="font-display font-bold text-5xl text-olive">{{ totalScore }}</p>
+      <p class="font-display font-bold text-4xl md:text-5xl text-olive">{{ totalScore }}</p>
       <p class="text-sm text-bark">out of {{ maxScore }}</p>
     </div>
 

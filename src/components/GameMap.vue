@@ -45,7 +45,6 @@ onMounted(() => {
 
 // Show the area where the species lives, plus a line from the guess to it
 function showAnswer(lat, lng, radius) {
-  // If the radius is missing, show a small circle instead of crashing
   const safeRadius = Number(radius) || 50
 
   answerCircle = L.circle([lat, lng], {
@@ -60,7 +59,7 @@ function showAnswer(lat, lng, radius) {
     dashArray: '6, 8',
   }).addTo(map)
 
-  map.fitBounds(answerCircle.getBounds().extend(line.getBounds()), { padding: [60, 60] })
+  map.fitBounds(answerCircle.getBounds().extend(line.getBounds()), { padding: [40, 40] })
 }
 
 // Clear everything before the next round
@@ -76,6 +75,13 @@ function reset() {
   map.setView([20, 0], 2)
 }
 
+// Leaflet needs to be told when its box changed size
+function refresh() {
+  if (map) {
+    map.invalidateSize()
+  }
+}
+
 function zoomIn() {
   map.zoomIn()
 }
@@ -84,15 +90,15 @@ function zoomOut() {
   map.zoomOut()
 }
 
-// Let DailyView call showAnswer() and reset()
-defineExpose({ showAnswer, reset })
+defineExpose({ showAnswer, reset, refresh })
 </script>
 
 <template>
   <div class="absolute inset-0">
     <div id="map" class="w-full h-full"></div>
 
-    <div class="absolute top-28 right-6 z-[1000] flex flex-col gap-3">
+    <!-- Zoom buttons sit lower on phones so they miss the score boxes -->
+    <div class="absolute top-28 right-3 md:right-6 z-[1000] flex flex-col gap-3">
       <button @click="zoomIn" class="w-10 h-10 rounded-full bg-sand font-bold text-xl">+</button>
       <button @click="zoomOut" class="w-10 h-10 rounded-full bg-sand font-bold text-xl">−</button>
     </div>

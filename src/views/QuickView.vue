@@ -7,6 +7,7 @@ import ScoreBox from '@/components/ScoreBox.vue'
 import RoundPanel from '@/components/RoundPanel.vue'
 import RevealPanel from '@/components/RevealPanel.vue'
 import ResultsPanel from '@/components/ResultsPanel.vue'
+import MapBar from '@/components/MapBar.vue'
 
 const subjects = ref([])
 const loading = ref(true)
@@ -22,6 +23,9 @@ const lastPoints = ref(0)
 
 const mapRef = ref(null)
 
+// Only used on phones. True means the panel is hidden so you can see the map.
+const mapOpen = ref(false)
+
 onMounted(() => {
   loadRounds()
 })
@@ -36,6 +40,14 @@ async function loadRounds() {
     error.value = 'Could not start a quick play. Please try again.'
   }
   loading.value = false
+}
+
+function openMap() {
+  mapOpen.value = true
+}
+
+function backToPhoto() {
+  mapOpen.value = false
 }
 
 function savePin(latlng) {
@@ -57,12 +69,16 @@ function makeGuess() {
   score.value = score.value + lastPoints.value
 
   mapRef.value.showAnswer(Number(subject.lat), Number(subject.lng), radius)
+
+  // On a phone we keep the map visible so the player sees the answer
   stage.value = 'reveal'
+  mapOpen.value = true
 }
 
 function nextRound() {
   mapRef.value.reset()
   guess.value = null
+  mapOpen.value = false
 
   if (currentRound.value === subjects.value.length - 1) {
     stage.value = 'results'
@@ -76,6 +92,7 @@ function nextRound() {
 async function playAgain() {
   mapRef.value.reset()
   guess.value = null
+  mapOpen.value = false
   currentRound.value = 0
   score.value = 0
   stage.value = 'guessing'
@@ -84,13 +101,13 @@ async function playAgain() {
 </script>
 
 <template>
-  <div class="relative h-[calc(100vh-88px)] overflow-hidden">
+  <div class="relative h-full overflow-hidden">
 
-    <p v-if="loading" class="p-10 text-xl">Picking some species...</p>
+    <p v-if="loading" class="p-6 md:p-10 text-xl">Picking some species...</p>
 
-    <p v-else-if="error" class="p-10 text-xl text-red-700">{{ error }}</p>
+    <p v-else-if="error" class="p-6 md:p-10 text-xl text-red-700">{{ error }}</p>
 
-    <p v-else-if="subjects.length === 0" class="p-10 text-xl">
+    <p v-else-if="subjects.length === 0" class="p-6 md:p-10 text-xl">
       There are no species in the database yet.
     </p>
 
@@ -105,15 +122,18 @@ async function playAgain() {
 
       <RoundPanel
         v-if="stage === 'guessing'"
+        :class="mapOpen ? 'hidden md:flex' : 'flex'"
         :subject="subjects[currentRound]"
         :roundNumber="currentRound + 1"
         :totalRounds="subjects.length"
         :hasPin="guess !== null"
         @guess="makeGuess"
+        @openMap="openMap"
       />
 
       <RevealPanel
         v-else-if="stage === 'reveal'"
+        :class="mapOpen ? 'hidden md:flex' : 'flex'"
         :subject="subjects[currentRound]"
         :distance="lastDistance"
         :points="lastPoints"
@@ -128,6 +148,22 @@ async function playAgain() {
         :isDaily="false"
         @playAgain="playAgain"
       />
+
+      <MapBar
+        v-if="mapOpen && stage === 'guessing'"
+        :hasPin="guess !== null"
+        @guess="makeGuess"
+        @backToPhoto="backToPhoto"
+      />
+
+      <button
+        v-if="mapOpen && stage === 'reveal'"
+        @click="backToPhoto"
+        class="md:hidden absolute bottom-4 left-4 right-4 z-[1000] rounded-full py-4 font-bold text-white text-lg bg-olive"
+      >
+        See the result
+      </button>
+
     </template>
 
   </div>

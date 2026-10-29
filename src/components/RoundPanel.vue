@@ -8,7 +8,7 @@ const props = defineProps({
   hasPin: Boolean,
 })
 
-const emit = defineEmits(['guess'])
+const emit = defineEmits(['guess', 'openMap'])
 
 // All the photos this species has (one or two)
 const photos = computed(() => {
@@ -19,7 +19,6 @@ const photos = computed(() => {
   return list
 })
 
-// Which photo is the big one right now
 const currentPhoto = ref(0)
 
 const zoom = ref(1)
@@ -89,19 +88,24 @@ function resetZoom() {
 </script>
 
 <template>
-  <div class="absolute top-6 bottom-6 left-6 z-[1000] w-[400px] bg-sand rounded-3xl p-7 flex flex-col overflow-y-auto">
+  <!-- On a phone this fills the whole screen.
+       On a big screen it is a panel on the left. -->
+  <div
+    class="absolute z-[1000] bg-sand flex flex-col overflow-y-auto
+           inset-0 rounded-none p-4
+           md:inset-auto md:top-6 md:bottom-6 md:left-6 md:w-[400px] md:rounded-3xl md:p-7"
+  >
 
     <p class="text-sm text-bark">Round {{ roundNumber }} of {{ totalRounds }}</p>
-    <h1 class="font-display font-bold text-4xl mb-5">Guess the habitat</h1>
+    <h1 class="font-display font-bold text-3xl md:text-4xl mb-4 md:mb-5">Guess the habitat</h1>
 
-    <!-- Scroll to zoom, then hold the mouse down and drag to look around -->
     <div
       @wheel.prevent="handleWheel"
       @mousedown.prevent="startDrag"
       @mousemove="doDrag"
       @mouseup="stopDrag"
       @mouseleave="stopDrag"
-      class="relative w-full h-80 overflow-hidden rounded-2xl mb-3"
+      class="relative w-full h-56 md:h-80 overflow-hidden rounded-2xl mb-3"
       :class="zoom > 1 ? (dragging ? 'cursor-grabbing' : 'cursor-grab') : ''"
     >
       <img
@@ -127,21 +131,21 @@ function resetZoom() {
         Reset
       </button>
 
+      <!-- Scrolling to zoom only makes sense with a mouse -->
       <span
         v-else
-        class="absolute bottom-3 right-3 bg-white text-xs px-3 py-1 rounded-full"
+        class="hidden md:block absolute bottom-3 right-3 bg-white text-xs px-3 py-1 rounded-full"
       >
         Scroll to zoom
       </span>
     </div>
 
-    <!-- Small pictures to switch between, only if there is more than one -->
     <div v-if="photos.length > 1" class="flex gap-3 mb-3">
       <button
         v-for="(photo, index) in photos"
         :key="photo"
         @click="pickPhoto(index)"
-        class="w-20 h-20 rounded-xl overflow-hidden"
+        class="w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden"
         :class="currentPhoto === index ? 'ring-4 ring-olive' : 'opacity-60'"
       >
         <img :src="photo" :alt="'Another photo of a ' + subject.name" class="w-full h-full object-cover" />
@@ -156,12 +160,20 @@ function resetZoom() {
       </span>
     </div>
 
-    <p class="font-bold mb-4">Drop a pin where you think this species lives.</p>
+    <p class="font-bold mb-4 hidden md:block">Drop a pin where you think this species lives.</p>
+
+    <!-- Phones: open the map. Big screens: guess straight away. -->
+    <button
+      @click="emit('openMap')"
+      class="md:hidden mt-auto w-full rounded-full py-4 font-bold text-white text-lg bg-olive"
+    >
+      {{ hasPin ? 'Back to the map' : 'Open the map' }}
+    </button>
 
     <button
       @click="emit('guess')"
       :disabled="!hasPin"
-      class="mt-auto w-full rounded-full py-4 font-bold text-white text-lg"
+      class="hidden md:block mt-auto w-full rounded-full py-4 font-bold text-white text-lg"
       :class="hasPin ? 'bg-olive' : 'bg-bark opacity-50'"
     >
       {{ hasPin ? 'Guess' : 'Place a pin first' }}

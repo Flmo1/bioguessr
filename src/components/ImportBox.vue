@@ -78,22 +78,22 @@ async function useSpecies(species) {
 </script>
 
 <template>
-  <div class="bg-white rounded-2xl p-6 mb-8">
+  <div class="bg-white rounded-2xl p-4 md:p-6 mb-8">
 
-    <h2 class="font-display font-bold text-2xl mb-2">Import from iNaturalist</h2>
+    <h2 class="font-display font-bold text-xl md:text-2xl mb-2">Import from iNaturalist</h2>
     <p class="mb-4">
       Search a species, pick one, and the form below gets filled in with real photos
       and the area where people have actually seen it.
     </p>
 
-    <div class="flex gap-3 mb-4">
+    <div class="flex flex-col sm:flex-row gap-3 mb-4">
       <input
         v-model="search"
         @keyup.enter="doSearch"
         placeholder="For example: red panda"
-        class="flex-1 border border-sand rounded-lg p-2"
+        class="flex-1 border border-sand rounded-lg p-3"
       />
-      <button @click="doSearch" class="bg-olive text-white font-bold px-6 py-2 rounded-full">
+      <button @click="doSearch" class="bg-olive text-white font-bold px-6 py-3 rounded-full">
         Search
       </button>
     </div>
@@ -108,7 +108,8 @@ async function useSpecies(species) {
       No species found with a photo. Try another name.
     </p>
 
-    <div v-else class="grid grid-cols-4 gap-4">
+    <!-- Two per row on a phone, four on a big screen -->
+    <div v-else class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div v-for="species in results" :key="species.id" class="border border-sand rounded-xl p-3">
         <img :src="species.photoUrl" :alt="species.commonName" class="w-full h-28 object-cover rounded-lg mb-2" />
         <p class="font-bold">{{ species.commonName }}</p>

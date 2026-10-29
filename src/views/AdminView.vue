@@ -13,9 +13,7 @@ const message = ref('')
 const showForm = ref(false)
 const showImport = ref(false)
 
-// The id of the species we are editing. null means we are making a new one.
 const editingId = ref(null)
-// The values the form starts with. null means empty fields.
 const formData = ref(null)
 
 onMounted(() => {
@@ -53,7 +51,6 @@ function startEdit(subject) {
   showForm.value = true
 }
 
-// Called when the user picks a species in the import box
 function handleImport(data) {
   editingId.value = null
   formData.value = data
@@ -96,11 +93,11 @@ async function handleDelete(id) {
 </script>
 
 <template>
-  <main class="max-w-[1200px] mx-auto px-6 py-10">
+  <main class="max-w-[1200px] mx-auto px-4 md:px-6 py-8 md:py-10">
 
-    <h1 class="font-display font-bold text-4xl mb-6">Admin</h1>
+    <h1 class="font-display font-bold text-3xl md:text-4xl mb-6">Admin</h1>
 
-    <div class="flex gap-3 mb-8">
+    <div class="flex flex-col sm:flex-row gap-3 mb-8">
       <button @click="startImport" class="bg-forest text-white font-bold px-6 py-3 rounded-full">
         Import from iNaturalist
       </button>
