@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getSubjects, createSubject, updateSubject, deleteSubject } from '@/services/subjectService'
 import SubjectTable from '@/components/SubjectTable.vue'
 import SubjectForm from '@/components/SubjectForm.vue'
@@ -15,6 +15,41 @@ const showImport = ref(false)
 
 const editingId = ref(null)
 const formData = ref(null)
+
+// What the editor typed in the search box, and which type they picked
+const search = ref('')
+const typeFilter = ref('all')
+
+// The list that actually gets shown in the table
+const shownSubjects = computed(() => {
+  const text = search.value.trim().toLowerCase()
+  const list = []
+
+  for (const subject of subjects.value) {
+    // Does it match the type dropdown?
+    if (typeFilter.value !== 'all' && subject.type !== typeFilter.value) {
+      continue
+    }
+
+    // Does it match what was typed? Empty search means everything matches.
+    if (text !== '') {
+      const name = (subject.name || '').toLowerCase()
+      const sci = (subject.scientificName || '').toLowerCase()
+      if (!name.includes(text) && !sci.includes(text)) {
+        continue
+      }
+    }
+
+    list.push(subject)
+  }
+
+  return list
+})
+
+function clearSearch() {
+  search.value = ''
+  typeFilter.value = 'all'
+}
 
 onMounted(() => {
   loadSubjects()
@@ -116,19 +151,57 @@ async function handleDelete(id) {
       @cancel="showForm = false"
     />
 
-    <p v-if="message" class="bg-olive text-white rounded-lg p-3 mb-4">{{ message }}</p>
+    <p v-if="message" class="bg-forest text-white rounded-lg p-3 mb-4">{{ message }}</p>
     <p v-if="error" class="bg-red-700 text-white rounded-lg p-3 mb-4">{{ error }}</p>
 
     <p v-if="loading">Loading species...</p>
 
     <p v-else-if="subjects.length === 0">No species yet. Import your first one!</p>
 
-    <SubjectTable
-      v-else
-      :subjects="subjects"
-      @edit="startEdit"
-      @delete="handleDelete"
-    />
+    <template v-else>
+
+      <!-- Search and filter -->
+      <div class="flex flex-col sm:flex-row gap-3 mb-4">
+        <label class="sr-only" for="search">Search species</label>
+        <input
+          id="search"
+          v-model="search"
+          type="search"
+          placeholder="Search by name or scientific name"
+          class="flex-1 border-2 border-sand rounded-lg p-3"
+        />
+
+        <label class="sr-only" for="typeFilter">Filter by type</label>
+        <select id="typeFilter" v-model="typeFilter" class="border-2 border-sand rounded-lg p-3">
+          <option value="all">All types</option>
+          <option value="animal">Animals</option>
+          <option value="plant">Plants</option>
+          <option value="fungus">Fungi</option>
+          <option value="place">Places</option>
+        </select>
+      </div>
+
+      <p class="text-sm text-bark mb-4">
+        Showing {{ shownSubjects.length }} of {{ subjects.length }} species
+      </p>
+
+      <!-- Nothing matched what they typed -->
+      <div v-if="shownSubjects.length === 0" class="bg-white rounded-2xl p-8 text-center">
+        <p class="font-bold mb-2">No species match your search</p>
+        <p class="mb-4">Try a different name, or show all types again.</p>
+        <button @click="clearSearch" class="bg-olive text-white font-bold px-6 py-3 rounded-full">
+          Clear search
+        </button>
+      </div>
+
+      <SubjectTable
+        v-else
+        :subjects="shownSubjects"
+        @edit="startEdit"
+        @delete="handleDelete"
+      />
+
+    </template>
 
   </main>
 </template>
