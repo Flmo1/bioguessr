@@ -7,7 +7,7 @@ const props = defineProps({
 
 const emit = defineEmits(['save', 'cancel'])
 
-// If we got a subject, we are editing it. If not, the fields start empty.
+// If i got a subject, im are editing it If not, the fields start empty.
 const name = ref(props.subject ? props.subject.name : '')
 const scientificName = ref(props.subject ? props.subject.scientificName : '')
 const type = ref(props.subject ? props.subject.type : 'animal')
@@ -20,7 +20,6 @@ const lng = ref(props.subject ? props.subject.lng : '')
 const radius = ref(props.subject ? props.subject.radius : 300)
 
 // In Appwrite clues is a list, but it is easier to type them as one line
-// separated by commas, so we join them here and split them again when saving.
 const cluesText = ref(
   props.subject && props.subject.clues ? props.subject.clues.join(', ') : ''
 )
